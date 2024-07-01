@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  datos_gunicorn:
+    build:
+      context: .
+    volumes:
+      - staticfiles:/app/staticfiles
+    env_file:
+      - .env
+    ports:
+      - "8001:8000"
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - staticfiles:/app/staticfiles
+    ports:
+      - "7001:80"
+    depends_on:
+      - datos_gunicorn
+
+  db: 
+    image: postgres
+    container_name: postgres_db_datos
+    restart: always
+    environment:
+      POSTGRES_DB: datos_db
+      POSTGRES_USER: datos
+      POSTGRES_PASSWORD: Localmen777
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  staticfiles:
+  pg_data:
