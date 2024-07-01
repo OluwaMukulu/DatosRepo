@@ -163,6 +163,6 @@ LOGGING = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://datos.southafricanorth.cloudapp.azure.com:7001','http://4.221.159.86:7001',
+    'http://datos.southafricanorth.cloudapp.azure.com:7001','http://4.221.159.86:7001','http://www.datos.world:7001'
 ]
 
