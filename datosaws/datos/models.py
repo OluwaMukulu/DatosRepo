@@ -142,7 +142,7 @@ class Expense(models.Model):
     def short_description(self):
          return truncatechars(self.description,50)
     def __str__(self):
-        return self.name
+        return self.user
     
 
 PAYMENT_METHOD = [
@@ -172,5 +172,5 @@ class Income(models.Model):
     def short_description(self):
          return truncatechars(self.description,50)
     def __str__(self):
-        return self.name
+        return self.user
 

@@ -6,27 +6,29 @@ from django.forms import ModelForm
 
 
 class ExpenseForm(ModelForm):
-
-    category_name = forms.ModelChoiceField(queryset=Category.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-select'}))
+    category_name = forms.ModelChoiceField(
+            queryset=Category.objects.all(),
+            widget=forms.Select(attrs={'class': 'form-select'})
+        )
 
     class Meta:
         model = Expense
-        fields = '__all__'
+        exclude = ['user']  # Exclude user field, as it is set in the view
         widgets = {
             'category_name': forms.Select(attrs={'class': 'form-select'})  # Add Bootstrap form-select class for consistency
         }
 
 class IncomeForm(ModelForm):
-
-    category_name = forms.ModelChoiceField(queryset=Category.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-select'}))
+    category_name = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
 
     class Meta:
         model = Income
-        fields = '__all__'
+        exclude = ['user']  # Exclude user field, as it is set in the view
         widgets = {
-            'category_name': forms.Select(attrs={'class': 'form-select'})  # Add Bootstrap form-select class for consistency
+            'category_name': forms.Select(attrs={'class': 'form-select'})
         }
 
 

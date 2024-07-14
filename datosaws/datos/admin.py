@@ -30,12 +30,12 @@ class ItemAdmin(admin.ModelAdmin):
     readonly_fields = ('item_photo',)
 
 class ExpenseAdmin(admin.ModelAdmin):
-    list_display = ('receipt_photo', 'name','short_description','company_name','category_name', 'date', 'amount', 'payment_method')
+    list_display = ('user','name','short_description','category_name', 'date', 'amount', 'payment_method')
     search_fields = ['name','company_name','category_name']
     list_filter = ('date','category_name','payment_method')
 
 class IncomeAdmin(admin.ModelAdmin):
-    list_display = ('name','short_description','company_name','category_name', 'date', 'amount', 'payment_method')
+    list_display = ('user','name','short_description','category_name', 'date', 'amount', 'payment_method')
     search_fields = ['name','company_name','category_name']
     list_filter = ('date','category_name','payment_method')
 

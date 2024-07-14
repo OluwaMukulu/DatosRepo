@@ -13,7 +13,7 @@ import calendar
 from  rest_framework.decorators import api_view
 from  rest_framework.response import Response
 from .serializers import ExpenseSerializer, IncomeSerializer
-
+from django.contrib.auth.models import Group
 
 
 
@@ -77,11 +77,18 @@ def home(request):
 
 @login_required(login_url='loginpage')
 def dashboard(request):
-    # Fetching data from Expense model for the chart
-    expenses_data = Expense.objects.filter(user=request.user).values('date__month').annotate(total_amount=Sum('amount'))
+    if request.user.groups.filter(name='admin').exists():
+        # Fetching data from Expense model for the chart
+        expenses_data = Expense.objects.all().values('date__month').annotate(total_amount=Sum('amount'))
+        income_data = Income.objects.all().values('date__month').annotate(total_amount=Sum('amount'))
+    elif request.user.groups.filter(name='client').exists():
+        # Fetching data from Income model for the chart
+        expenses_data = Expense.objects.filter(user=request.user).values('date__month').annotate(total_amount=Sum('amount'))
+        income_data = Income.objects.filter(user=request.user).values('date__month').annotate(total_amount=Sum('amount'))
 
-    # Fetching data from Income model for the chart
-    income_data = Income.objects.filter(user=request.user).values('date__month').annotate(total_amount=Sum('amount'))
+    else:
+        expenses_data = Expense.objects.none()
+        income_data = Income.objects.none()
 
     # Prepare sorted and formatted data for expenses and income
     sorted_expense_data = [0] * 12
@@ -126,14 +133,20 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', context)
 
-##@login_required(login_url='loginpage')
+@login_required(login_url='loginpage')
 def profile(request):
     return render(request, 'profile.html')
 
-#@login_required(login_url='loginpage')
+@login_required(login_url='loginpage')
 def listexpenses(request):
 
-    expense = Expense.objects.filter(user=request.user) # Assuming Expense is your model name
+    if request.user.groups.filter(name='admin').exists():
+        expense = Expense.objects.all()
+    elif request.user.groups.filter(name='client').exists():
+        expense = Expense.objects.filter(user=request.user)
+    else:
+         expense = Expense.objects.none()  # Or handle this case as required
+
     context = {
         'expense': expense,
     }
@@ -150,7 +163,9 @@ def addexpenses(request):
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
-            expense = form.save()
+            expense = form.save(commit=False)
+            expense.user = request.user
+            expense.save()
             return redirect('listexpenses')
 
     context = {'form': form, 'expense': expense, 'payment_methods': payment_methods, 'categories': categories}
@@ -190,8 +205,13 @@ def deleteexpense(request, pk):
 
 @login_required(login_url='loginpage')
 def listincome(request):
+    if request.user.groups.filter(name='admin').exists():
+        income = Income.objects.all()
+    elif request.user.groups.filter(name='client').exists():
+        income = Income.objects.filter(user=request.user)
+    else:
+        income = Income.objects.none()  # Or handle this case as required
 
-    income = Income.objects.filter(user=request.user)  # Assuming Expense is your model name
     context = {
         'income': income,
     }
@@ -201,17 +221,18 @@ def listincome(request):
 @login_required(login_url='loginpage')
 def addincome(request):
     form = IncomeForm()
-    income = Income.objects.all()
     payment_methods = [method[0] for method in PAYMENT_METHOD]
     categories = Category.objects.all()
 
     if request.method == 'POST':
         form = IncomeForm(request.POST)
         if form.is_valid():
-            income = form.save()
+            income = form.save(commit=False)
+            income.user = request.user
+            income.save()
             return redirect('listincome')
 
-    context = {'form': form, 'income': income, 'payment_methods': payment_methods, 'categories': categories}
+    context = {'form': form, 'payment_methods': payment_methods, 'categories': categories}
     return render(request, 'addincome.html', context)
 
 @login_required(login_url='loginpage')
